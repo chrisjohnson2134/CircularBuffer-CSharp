@@ -23,7 +23,7 @@ namespace GameInputDemo
         public MainWindow()
         {
             InitializeComponent();
-            
+
         }
 
         private void _popTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
@@ -32,9 +32,9 @@ namespace GameInputDemo
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                        OutputTextBox.Text += _circularBuffer.Front() + "\n";
-                        _circularBuffer.PopFront();
-                        UpdateBufferBox();
+                    OutputTextBox.Text += _circularBuffer.Front() + "\n";
+                    _circularBuffer.PopFront();
+                    UpdateBufferBox();
                 });
             }
         }
@@ -58,10 +58,18 @@ namespace GameInputDemo
 
         private void pushBackUpdateBuffer(UserActions userActions)
         {
-            if(_programStarted)
+            if (_programStarted)
             {
-                _circularBuffer.PushBack(userActions);
-                UpdateBufferBox();
+                if (_circularBuffer.IsEmpty)
+                {
+                    _circularBuffer.PushBack(userActions);
+                    UpdateBufferBox();
+                }
+                else if (_circularBuffer.Back() != userActions)
+                {
+                    _circularBuffer.PushBack(userActions);
+                    UpdateBufferBox();
+                }
             }
         }
 
@@ -86,11 +94,11 @@ namespace GameInputDemo
 
         private void StartBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(int.TryParse(BufferSizeTxt.Text, out int bufferSize))
+            if (int.TryParse(BufferSizeTxt.Text, out int bufferSize))
             {
                 _circularBuffer = new CircularBuffer.CircularBuffer<UserActions>(bufferSize);
             }
-            else 
+            else
             {
                 _circularBuffer = new CircularBuffer.CircularBuffer<UserActions>(4);
                 BufferSizeTxt.Text = 4.ToString();
@@ -114,7 +122,7 @@ namespace GameInputDemo
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(_programStarted)
+            if (_programStarted)
             {
                 _popTimer.Stop();
                 _programStarted = false;
